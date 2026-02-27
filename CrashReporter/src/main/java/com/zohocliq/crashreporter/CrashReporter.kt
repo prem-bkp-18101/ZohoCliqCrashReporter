@@ -274,7 +274,9 @@ class CrashReporter private constructor(
          */
         fun initialize(context: Context, config: CrashReporterConfig): CrashReporter {
             if (!config.isValid()) {
-                throw IllegalArgumentException("Invalid CrashReporterConfig: ensure dataCenter, zapiKey, and appKey are provided")
+                throw IllegalArgumentException(
+                    "Invalid CrashReporterConfig: ensure domain and zapiKey are provided"
+                )
             }
 
             return instance ?: synchronized(this) {
@@ -302,4 +304,3 @@ class CrashReporter private constructor(
         }
     }
 }
-

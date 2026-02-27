@@ -7,7 +7,7 @@ import com.zohocliq.crashreporter.CrashReporter
 import com.zohocliq.crashreporter.CrashReporterConfig
 
 /**
- * Example Application class demonstrating how to initialize the Crash Reporter
+ * Example Application class demonstrating how to initialize the Crash Reporter.
  *
  * Add this to your AndroidManifest.xml:
  * <application
@@ -23,17 +23,14 @@ class ExampleApplication : Application() {
     }
 
     private fun initializeCrashReporter() {
-        // Configure the crash reporter
         val config = CrashReporterConfig(
-            domain = "cliq.zoho.com",  // Change to your domain (e.g. cliq.zoho.eu)
-            zapiKey = "YOUR_ZAPI_KEY",  // Replace with your actual ZAPI key
+            domain = "cliq.zoho.com",  // Change to your domain (e.g., "cliq.zoho.eu" for EU)
+            zapiKey = "YOUR_ZAPI_KEY",  // Replace with your actual ZAPI key obtained from Zoho Cliq
             enableLogging = true  // Enable logging for debugging
         )
 
-        // Initialize the crash reporter
         CrashReporter.initialize(this, config)
 
-        // Optional: Set additional data provider
         CrashReporter.getInstance().setAdditionalDataProvider {
             mapOf(
                 "user_id" to getCurrentUserId(),
@@ -42,13 +39,10 @@ class ExampleApplication : Application() {
             )
         }
 
-        // Optional: Set crash listener
         CrashReporter.getInstance().setOnCrashListener { crashReport ->
             Log.e("CrashReporter", "Crash detected: ${crashReport.exceptionType}")
-            // You can add analytics tracking here
         }
 
-        // Send any pending crashes from previous sessions
         CrashReporter.getInstance().sendPendingCrashes { sentCount, failedCount ->
             if (sentCount > 0) {
                 Log.i("CrashReporter", "Successfully sent $sentCount crash report(s)")
@@ -59,19 +53,15 @@ class ExampleApplication : Application() {
         }
     }
 
-    // Example methods for additional data
     private fun getCurrentUserId(): String {
-        // Replace with your actual user ID retrieval logic
         return "user_123"
     }
 
     private fun getCurrentSessionId(): String {
-        // Replace with your actual session ID retrieval logic
         return "session_${System.currentTimeMillis()}"
     }
 
     private fun getEnvironment(): String {
-        // Replace with your actual environment detection logic
         return if (BuildConfig.DEBUG) "debug" else "production"
     }
 }
