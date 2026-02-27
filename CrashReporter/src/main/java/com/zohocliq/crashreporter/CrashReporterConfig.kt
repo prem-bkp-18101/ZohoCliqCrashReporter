@@ -32,12 +32,12 @@ data class CrashReporterConfig(
     private fun getCredentials(): InternalCredentials {
         return when (environment) {
             InternalEnvironment.TESTING_SANDBOX -> InternalCredentials(
-                extensionId = "1",
-                appKey = "a"
+                extensionId = "2305843009213702344",
+                appKey = "sbx-ODM5My0zMDZlOTNmMS0yNzBmLTRmOTUtYjIwMC1mMGE1NDVhOTlhYjQ="
             )
             InternalEnvironment.TESTING_LIVE -> InternalCredentials(
-                extensionId = "1234",
-                appKey = "abc"
+                extensionId = "8393",
+                appKey = "ODM5My0zMDZlOTNmMS0yNzBmLTRmOTUtYjIwMC1mMGE1NDVhOTlhYjQ="
             )
             InternalEnvironment.PRODUCTION_SANDBOX -> InternalCredentials(
                 extensionId = "2305843009213702336",
