@@ -33,19 +33,17 @@ dependencies {
 
 You need the following information from your Zoho Cliq webhook:
 
-- **Data Center (DC)**: Your Zoho region (e.g., "us", "eu", "in", "au", "jp", "ca")
+- **Zoho Domain**: Your Zoho region domain (e.g., "cliq.zoho.com", "cliq.zoho.eu")
 - **ZAPI Key**: The `zapikey` parameter from your webhook URL
-- **App Key**: A unique identifier for your application
 
 **Example Webhook URL:**
 ```
-https://cliq.zoho.com/api/v2/extensions/2305843009213702336/incoming?zapikey=1001.xxxxx&appkey=your_app_key
+https://cliq.zoho.com/api/v2/extensions/2305843009213702336/incoming?zapikey=1001.xxxxx&appkey=crash_reporter
 ```
 
 From this URL:
-- DC: `us` (derived from `cliq.zoho.com`)
+- Domain: `cliq.zoho.com`
 - ZAPI Key: `1001.xxxxx`
-- App Key: `your_app_key`
 
 ### 2. Initialize in Application Class
 
@@ -61,9 +59,8 @@ class MyApplication : Application() {
         
         // Configure the crash reporter
         val config = CrashReporterConfig(
-            dataCenter = "us",           // Your Zoho data center
-            zapiKey = "your_zapi_key",   // Your ZAPI key
-            appKey = "your_app_key",     // Your app identifier
+            domain = "cliq.zoho.com",     // Your Zoho domain
+            zapiKey = "your_zapi_key",    // Your ZAPI key
             enableLogging = BuildConfig.DEBUG // Enable logs in debug builds
         )
         

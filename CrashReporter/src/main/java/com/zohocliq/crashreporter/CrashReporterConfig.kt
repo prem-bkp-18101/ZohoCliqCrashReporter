@@ -3,43 +3,43 @@ package com.zohocliq.crashreporter
 /**
  * Configuration class for ZohoCliq Crash Reporter
  *
- * @param dataCenter The Zoho Cliq data center (e.g., "us", "eu", "in", "au", "jp", "ca")
+ * @param domain The Zoho Cliq domain (e.g., "cliq.zoho.com" or "cliq.zoho.eu")
  * @param zapiKey The ZAPI key for authentication
- * @param appKey The application key for identifying the app
  * @param extensionId The Zoho Cliq extension ID (default: 2305843009213702336)
  * @param enableLogging Enable debug logging (default: false)
  */
 data class CrashReporterConfig(
-    val dataCenter: String,
+    val domain: String, // e.g. "cliq.zoho.com" or "https://cliq.zoho.com"
     val zapiKey: String,
-    val appKey: String,
     val extensionId: String = "2305843009213702336",
     val enableLogging: Boolean = false
 ) {
+    private val appKey: String = "sbx-ODM4NS1hZTdmMDg2Zi1iOGJkLTRhNzUtYWY4OC1hMTFiYjZlMTcxYTQ="
+
     /**
      * Constructs the full endpoint URL for Zoho Cliq
      */
     fun getEndpointUrl(): String {
-        val baseUrl = when (dataCenter.lowercase()) {
-            "us" -> "https://cliq.zoho.com"
-            "eu" -> "https://cliq.zoho.eu"
-            "in" -> "https://cliq.zoho.in"
-            "au" -> "https://cliq.zoho.com.au"
-            "jp" -> "https://cliq.zoho.jp"
-            "ca" -> "https://cliq.zoho.ca"
-            else -> "https://cliq.zoho.com" // Default to US
+        // Clean domain to ensure it doesn't have protocol or trailing slash if not needed,
+        // or just ensure it starts with https:// if missing.
+
+        var cleanDomain = domain.trim()
+        if (!cleanDomain.startsWith("http")) {
+            cleanDomain = "https://$cleanDomain"
+        }
+        if (cleanDomain.endsWith("/")) {
+            cleanDomain = cleanDomain.substring(0, cleanDomain.length - 1)
         }
 
-        return "$baseUrl/api/v2/extensions/$extensionId/incoming?zapikey=$zapiKey&appkey=$appKey"
+        return "$cleanDomain/api/v2/extensions/$extensionId/incoming?zapikey=$zapiKey&appkey=$appKey"
     }
 
     /**
      * Validates the configuration
      */
     fun isValid(): Boolean {
-        return dataCenter.isNotBlank() &&
+        return domain.isNotBlank() &&
                zapiKey.isNotBlank() &&
-               appKey.isNotBlank() &&
                extensionId.isNotBlank()
     }
 }

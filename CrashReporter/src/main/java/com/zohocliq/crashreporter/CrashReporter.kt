@@ -17,9 +17,8 @@ import java.lang.Thread.UncaughtExceptionHandler
  * ```kotlin
  * // Initialize in Application class
  * val config = CrashReporterConfig(
- *     dataCenter = "us",
- *     zapiKey = "your_zapi_key",
- *     appKey = "your_app_key"
+ *     domain = "cliq.zoho.com",
+ *     zapiKey = "your_zapi_key"
  * )
  * CrashReporter.initialize(context, config)
  *
@@ -44,7 +43,7 @@ class CrashReporter private constructor(
 
     init {
         isLoggingEnabled = config.enableLogging
-        logInfo("CrashReporter initialized with config: DC=${config.dataCenter}, AppKey=${config.appKey}")
+        logInfo("CrashReporter initialized with config: Domain=${config.domain}")
 
         // Set up uncaught exception handler
         Thread.setDefaultUncaughtExceptionHandler { thread, throwable ->

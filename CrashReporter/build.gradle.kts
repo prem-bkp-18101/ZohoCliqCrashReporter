@@ -1,8 +1,14 @@
 plugins {
     alias(libs.plugins.android.library)
+    `maven-publish`
 }
 
 android {
+    publishing {
+        singleVariant("release") {
+            withSourcesJar()
+        }
+    }
     namespace = "com.zohocliq.crashreporter"
     compileSdk = 36
 

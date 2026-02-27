@@ -25,9 +25,8 @@ class ExampleApplication : Application() {
     private fun initializeCrashReporter() {
         // Configure the crash reporter
         val config = CrashReporterConfig(
-            dataCenter = "us",  // Change to your data center: us, eu, in, au, jp, ca
+            domain = "cliq.zoho.com",  // Change to your domain (e.g. cliq.zoho.eu)
             zapiKey = "YOUR_ZAPI_KEY",  // Replace with your actual ZAPI key
-            appKey = "YOUR_APP_KEY",    // Replace with your app key
             enableLogging = true  // Enable logging for debugging
         )
 
