@@ -38,6 +38,19 @@ android {
     }
 }
 
+afterEvaluate {
+    publishing {
+        publications {
+            register<MavenPublication>("release") {
+                from(components["release"])
+                groupId = "com.github.prem-bkp-18101"
+                artifactId = "ZohoCliqCrashReporter"
+                version = "0.0.1-beta"
+            }
+        }
+    }
+}
+
 dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
