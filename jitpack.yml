@@ -1,0 +1,6 @@
+jdk:
+  - openjdk17
+before_install:
+  - ./gradlew :CrashReporter:dependencies
+install:
+  - ./gradlew :CrashReporter:build :CrashReporter:publishToMavenLocal

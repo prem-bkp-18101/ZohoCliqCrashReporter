@@ -38,16 +38,19 @@ android {
     }
 }
 
-afterEvaluate {
-    publishing {
-        publications {
-            register<MavenPublication>("release") {
-                from(components["release"])
-                groupId = "com.github.prem-bkp-18101"
-                artifactId = "ZohoCliqCrashReporter"
-                version = "0.0.1-beta"
-            }
+publishing {
+    publications {
+        create<MavenPublication>("release") {
+            groupId = "com.github.prem-bkp-18101"
+            artifactId = "ZohoCliqCrashReporter"
+            version = "0.0.1-beta"
         }
+    }
+}
+
+afterEvaluate {
+    publishing.publications.named<MavenPublication>("release") {
+        from(components["release"])
     }
 }
 
