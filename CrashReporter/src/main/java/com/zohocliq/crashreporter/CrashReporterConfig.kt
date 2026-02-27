@@ -27,7 +27,7 @@ data class CrashReporterConfig(
         val appKey: String
     )
 
-    private val environment: InternalEnvironment = InternalEnvironment.PRODUCTION_SANDBOX
+    private val environment: InternalEnvironment = InternalEnvironment.TESTING_SANDBOX
 
     private fun getCredentials(): InternalCredentials {
         return when (environment) {
