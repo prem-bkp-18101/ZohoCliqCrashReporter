@@ -1,9 +1,9 @@
 package com.zohocliq.crashreporter
 
+import android.content.Context
 import android.os.Build
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
+import android.provider.Settings
+import java.util.UUID
 
 /**
  * Data class representing a crash report
@@ -18,46 +18,6 @@ data class CrashReport(
     val threadName: String,
     val additionalData: Map<String, String> = emptyMap()
 ) {
-
-    /**
-     * Converts the crash report to a formatted message for Zoho Cliq
-     */
-    fun toCliqMessage(): String {
-        val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
-        val formattedDate = dateFormat.format(Date(timestamp))
-
-        return buildString {
-            appendLine("🚨 **Crash Report**")
-            appendLine()
-            appendLine("**Time:** $formattedDate")
-            appendLine("**App Version:** $appVersion")
-            appendLine()
-            appendLine("**Exception Type:** `$exceptionType`")
-            if (exceptionMessage.isNotBlank()) {
-                appendLine("**Message:** $exceptionMessage")
-            }
-            appendLine("**Thread:** $threadName")
-            appendLine()
-            appendLine("**Device Information:**")
-            appendLine("- Model: ${deviceInfo.model}")
-            appendLine("- Manufacturer: ${deviceInfo.manufacturer}")
-            appendLine("- Android Version: ${deviceInfo.androidVersion} (API ${deviceInfo.sdkInt})")
-            appendLine()
-            appendLine("**Stack Trace:**")
-            appendLine("```")
-            appendLine(stackTrace)
-            appendLine("```")
-
-            if (additionalData.isNotEmpty()) {
-                appendLine()
-                appendLine("**Additional Data:**")
-                additionalData.forEach { (key, value) ->
-                    appendLine("- $key: $value")
-                }
-            }
-        }
-    }
-
     /**
      * Converts crash report to JSON string for storage
      */
@@ -73,7 +33,8 @@ data class CrashReport(
                     "manufacturer": "${deviceInfo.manufacturer.escape()}",
                     "model": "${deviceInfo.model.escape()}",
                     "androidVersion": "${deviceInfo.androidVersion.escape()}",
-                    "sdkInt": ${deviceInfo.sdkInt}
+                    "sdkInt": ${deviceInfo.sdkInt},
+                    "deviceId": "${deviceInfo.deviceId.escape()}"
                 },
                 "threadName": "${threadName.escape()}",
                 "additionalData": ${additionalData.toJsonMap()}
@@ -106,6 +67,30 @@ data class CrashReport(
         }
 
         /**
+         * Creates a crash report from a throwable with custom device info
+         */
+        fun fromThrowable(
+            throwable: Throwable,
+            appVersion: String,
+            deviceInfo: DeviceInfo,
+            additionalData: Map<String, String> = emptyMap()
+        ): CrashReport {
+            val stackTraceString = throwable.stackTraceToString()
+            val thread = Thread.currentThread()
+
+            return CrashReport(
+                timestamp = System.currentTimeMillis(),
+                exceptionType = throwable.javaClass.name,
+                exceptionMessage = throwable.message ?: "",
+                stackTrace = stackTraceString,
+                appVersion = appVersion,
+                deviceInfo = deviceInfo,
+                threadName = thread.name,
+                additionalData = additionalData
+            )
+        }
+
+        /**
          * Parses a crash report from JSON string
          */
         fun fromJson(json: String): CrashReport? {
@@ -122,6 +107,7 @@ data class CrashReport(
                 val model = json.extractJsonString("model") ?: "Unknown"
                 val androidVersion = json.extractJsonString("androidVersion") ?: "Unknown"
                 val sdkInt = json.extractJsonInt("sdkInt") ?: 0
+                val deviceId = json.extractJsonString("deviceId") ?: "Unknown"
 
                 CrashReport(
                     timestamp = timestamp,
@@ -129,7 +115,7 @@ data class CrashReport(
                     exceptionMessage = exceptionMessage,
                     stackTrace = stackTrace,
                     appVersion = appVersion,
-                    deviceInfo = DeviceInfo(manufacturer, model, androidVersion, sdkInt),
+                    deviceInfo = DeviceInfo(manufacturer, model, androidVersion, sdkInt, deviceId),
                     threadName = threadName,
                     additionalData = emptyMap()
                 )
@@ -147,16 +133,48 @@ data class DeviceInfo(
     val manufacturer: String,
     val model: String,
     val androidVersion: String,
-    val sdkInt: Int
+    val sdkInt: Int,
+    val deviceId: String
 ) {
     companion object {
-        fun current(): DeviceInfo {
+        fun current(context: Context? = null): DeviceInfo {
+            val deviceId = if (context == null) {
+                "Unknown"
+            } else {
+                getDeviceId(context)
+            }
+
             return DeviceInfo(
                 manufacturer = Build.MANUFACTURER,
                 model = Build.MODEL,
                 androidVersion = Build.VERSION.RELEASE,
-                sdkInt = Build.VERSION.SDK_INT
+                sdkInt = Build.VERSION.SDK_INT,
+                deviceId = deviceId
             )
+        }
+
+        private fun getDeviceId(context: Context): String {
+            // Try to get Android ID first
+            val androidId = Settings.Secure.getString(
+                context.contentResolver,
+                Settings.Secure.ANDROID_ID
+            )
+
+            if (!androidId.isNullOrBlank()) {
+                return androidId
+            }
+
+            // If Android ID unavailable, use persisted UUID
+            val prefs = context.getSharedPreferences("zoho_cliq_crash_reporter", Context.MODE_PRIVATE)
+            val cached = prefs.getString("device_id", null)
+            if (!cached.isNullOrBlank()) {
+                return cached
+            }
+
+            // Generate and store new UUID
+            val generated = UUID.randomUUID().toString()
+            prefs.edit().putString("device_id", generated).apply()
+            return generated
         }
     }
 }
@@ -203,4 +221,3 @@ private fun String.unescape(): String {
         .replace("\\\"", "\"")
         .replace("\\\\", "\\")
 }
-

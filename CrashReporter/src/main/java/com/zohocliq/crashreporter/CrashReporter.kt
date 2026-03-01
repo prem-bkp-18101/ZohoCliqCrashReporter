@@ -78,6 +78,7 @@ class CrashReporter private constructor(
                 val crash = CrashReport.fromThrowable(
                     throwable = throwable,
                     appVersion = getAppVersion(),
+                    deviceInfo = DeviceInfo.current(context),
                     additionalData = mergedData
                 )
 
@@ -178,6 +179,7 @@ class CrashReporter private constructor(
             val crash = CrashReport.fromThrowable(
                 throwable = throwable,
                 appVersion = getAppVersion(),
+                deviceInfo = DeviceInfo.current(context),
                 additionalData = additionalData
             )
 

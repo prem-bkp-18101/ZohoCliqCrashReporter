@@ -28,8 +28,7 @@ internal class ZohoCliqService(private val config: CrashReporterConfig) {
      */
     suspend fun sendCrashReport(crash: CrashReport): Result<Boolean> = withContext(Dispatchers.IO) {
         try {
-            val message = crash.toCliqMessage()
-            val payload = createCliqPayload(message)
+            val payload = crash.toJson()
 
             val request = Request.Builder()
                 .url(config.getEndpointUrl())
@@ -80,31 +79,4 @@ internal class ZohoCliqService(private val config: CrashReporterConfig) {
 
         return results
     }
-
-    /**
-     * Creates a Zoho Cliq compatible JSON payload
-     */
-    private fun createCliqPayload(message: String): String {
-        return """
-            {
-                "text": ${message.toJsonString()}
-            }
-        """.trimIndent()
-    }
-
-    /**
-     * Converts a string to JSON-safe format
-     */
-    private fun String.toJsonString(): String {
-        val escaped = this.replace("\\", "\\\\")
-            .replace("\"", "\\\"")
-            .replace("\n", "\\n")
-            .replace("\r", "\\r")
-            .replace("\t", "\\t")
-            .replace("\b", "\\b")
-            .replace("\u000C", "\\f")
-
-        return "\"$escaped\""
-    }
 }
-
