@@ -14,6 +14,7 @@ data class CrashReport(
     val exceptionMessage: String,
     val stackTrace: String,
     val appVersion: String,
+    val appId: String,
     val deviceInfo: DeviceInfo,
     val threadName: String,
     val additionalData: Map<String, String> = emptyMap()
@@ -29,6 +30,7 @@ data class CrashReport(
                 "exceptionMessage": "${exceptionMessage.escape()}",
                 "stackTrace": "${stackTrace.escape()}",
                 "appVersion": "${appVersion.escape()}",
+                "appId": "${appId.escape()}",
                 "deviceInfo": {
                     "manufacturer": "${deviceInfo.manufacturer.escape()}",
                     "model": "${deviceInfo.model.escape()}",
@@ -49,6 +51,7 @@ data class CrashReport(
         fun fromThrowable(
             throwable: Throwable,
             appVersion: String,
+            appId: String,
             additionalData: Map<String, String> = emptyMap()
         ): CrashReport {
             val stackTraceString = throwable.stackTraceToString()
@@ -60,6 +63,7 @@ data class CrashReport(
                 exceptionMessage = throwable.message ?: "",
                 stackTrace = stackTraceString,
                 appVersion = appVersion,
+                appId = appId,
                 deviceInfo = DeviceInfo.current(),
                 threadName = thread.name,
                 additionalData = additionalData
@@ -72,6 +76,7 @@ data class CrashReport(
         fun fromThrowable(
             throwable: Throwable,
             appVersion: String,
+            appId: String,
             deviceInfo: DeviceInfo,
             additionalData: Map<String, String> = emptyMap()
         ): CrashReport {
@@ -84,6 +89,7 @@ data class CrashReport(
                 exceptionMessage = throwable.message ?: "",
                 stackTrace = stackTraceString,
                 appVersion = appVersion,
+                appId = appId,
                 deviceInfo = deviceInfo,
                 threadName = thread.name,
                 additionalData = additionalData
@@ -101,6 +107,7 @@ data class CrashReport(
                 val exceptionMessage = json.extractJsonString("exceptionMessage") ?: ""
                 val stackTrace = json.extractJsonString("stackTrace") ?: return null
                 val appVersion = json.extractJsonString("appVersion") ?: return null
+                val appId = json.extractJsonString("appId") ?: "Unknown"
                 val threadName = json.extractJsonString("threadName") ?: "Unknown"
 
                 val manufacturer = json.extractJsonString("manufacturer") ?: "Unknown"
@@ -115,6 +122,7 @@ data class CrashReport(
                     exceptionMessage = exceptionMessage,
                     stackTrace = stackTrace,
                     appVersion = appVersion,
+                    appId = appId,
                     deviceInfo = DeviceInfo(manufacturer, model, androidVersion, sdkInt, deviceId),
                     threadName = threadName,
                     additionalData = emptyMap()
